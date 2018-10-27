@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.util.Pair;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,44 +21,44 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    Toolbar toolbar = findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+    setSupportActionBar(this.<Toolbar>findViewById(R.id.toolbar));
 
-    TabLayout tabLayout = findViewById(R.id.tab_layout);
-    ViewPager viewPager = findViewById(R.id.view_pager);
-
-    tabLayout.setupWithViewPager(viewPager);
-
-    List<Fragment> fragments = Arrays.asList(new FirstFragment(), new SecondFragment(), new ThirdFragment());
-    List<CharSequence> titles = Arrays.<CharSequence>asList("One", "Two", "Three");
-    viewPager.setAdapter(new SectionFragmentPagerAdapter(getSupportFragmentManager(), fragments, titles));
+    setupTabLayoutAndViewPager();
   }
 
+  private void setupTabLayoutAndViewPager() {
+    ViewPager viewPager = findViewById(R.id.view_pager);
+    this.<TabLayout>findViewById(R.id.tab_layout).setupWithViewPager(viewPager);
+    List<Pair<? extends Fragment, String>> pairs = Arrays.asList(
+        Pair.create(new FirstFragment(), "First"),
+        Pair.create(new SecondFragment(), "Second"),
+        Pair.create(new ThirdFragment(), "Third")
+    );
+    viewPager.setAdapter(new SectionFragmentPagerAdapter(getSupportFragmentManager(), pairs));
+  }
 
   private static final class SectionFragmentPagerAdapter extends FragmentPagerAdapter {
-    private final List<Fragment> fragments;
-    private final List<CharSequence> titles;
+    private final List<Pair<? extends Fragment, String>> pairs;
 
-    SectionFragmentPagerAdapter(FragmentManager fm, List<Fragment> fragments, List<CharSequence> titles) {
-      super(fm);
-      this.fragments = fragments;
-      this.titles = titles;
+    SectionFragmentPagerAdapter(FragmentManager supportFragmentManager, List<Pair<? extends Fragment, String>> pairs) {
+      super(supportFragmentManager);
+      this.pairs = pairs;
     }
 
     @Override
     public Fragment getItem(int position) {
-      return fragments.get(position);
+      return pairs.get(position).first;
     }
 
     @Override
     public int getCount() {
-      return fragments.size();
+      return pairs.size();
     }
 
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-      return titles.get(position);
+      return pairs.get(position).second;
     }
   }
 }
